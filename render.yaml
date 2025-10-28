@@ -1,10 +1,10 @@
 services:
-  - type: web
-    name: bot-aliExpress
+  - type: worker
+    name: bot-aliExpress-simple
     env: python
     pythonVersion: 3.11
     buildCommand: pip install -r requirements.txt
-    startCommand: python webhook_server.py
+    startCommand: python simple_bot.py
     envVars:
       - key: TRACKING_ID
         value: BOT_TELEGRAM
