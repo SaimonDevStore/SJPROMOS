@@ -2,6 +2,7 @@ services:
   - type: worker
     name: bot-aliExpress
     env: python
+    pythonVersion: 3.11
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py
     envVars:
@@ -29,4 +30,3 @@ services:
         value: America/Sao_Paulo
       - key: DEBUG
         value: False
-
