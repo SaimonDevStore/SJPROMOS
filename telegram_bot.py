@@ -411,38 +411,68 @@ Encontrados {len(products)} produtos:
                 self.is_active = not self.is_active
                 status_text = "⏸️ Pausado" if not self.is_active else "▶️ Ativo"
                 await callback.message.edit_text(
-                    callback.message.text + f"\n\n🔄 Status alterado para: {status_text}",
-                    parse_mode='Markdown'
+                    callback.message.text + f"\n\n🔄 Status alterado para: {status_text}"
                 )
                 await callback.answer(f"Status alterado para: {status_text}")
             
             elif data == "show_stats":
                 await callback.answer("Carregando estatísticas...")
-                # Reutilizar comando de estatísticas
-                await self.statistics_command(callback.message)
+                # Executar comando de estatísticas diretamente
+                try:
+                    stats = await self.product_ai.get_statistics()
+                    stats_text = f"""📊 Estatísticas
+
+📈 Performance Geral:
+• Total de posts: {stats.get('total_posts', 0)}
+• Total de cliques: {stats.get('total_clicks', 0)}
+• Score médio: {stats.get('avg_score', 0):.1f}/100
+
+🏆 Top 5 Produtos Mais Clicados:"""
+                    
+                    top_products = stats.get('top_products', [])
+                    for i, (product_id, clicks) in enumerate(top_products[:5], 1):
+                        stats_text += f"\n{i}. {product_id[:20]}... - {clicks} cliques"
+                    
+                    if not top_products:
+                        stats_text += "\nNenhum produto postado ainda."
+                    
+                    await callback.message.answer(stats_text)
+                except Exception as e:
+                    await callback.message.answer(f"❌ Erro ao obter estatísticas: {e}")
             
             elif data == "show_config":
                 await callback.answer("Carregando configurações...")
-                config_text = f"""
-🔧 **Configurações Atuais**
+                config_text = f"""🔧 Configurações Atuais
 
-📊 **Postagem:**
+📊 Postagem:
 • Posts/hora: {self.config.POST_MIN_PER_HOUR}-{self.config.POST_MAX_PER_HOUR}
 • Horário: {self.config.START_TIME} - {self.config.END_TIME}
 • Timezone: {self.config.TIMEZONE}
 
-🔗 **API:**
+🔗 API:
 • Tracking ID: {self.config.TRACKING_ID}
 • Canal: {self.config.CHANNEL_ID}
 
-Use os comandos para alterar as configurações.
-                """
-                await callback.message.answer(config_text, parse_mode='Markdown')
+Use os comandos para alterar as configurações."""
+                await callback.message.answer(config_text)
             
             elif data == "show_logs":
                 await callback.answer("Carregando logs...")
-                # Reutilizar comando de logs
-                await self.logs_command(callback.message)
+                # Executar comando de logs diretamente
+                try:
+                    with open('bot.log', 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
+                        last_lines = ''.join(lines[-20:])  # Últimas 20 linhas
+                        
+                        if len(last_lines) > 4000:  # Limite do Telegram
+                            last_lines = last_lines[-4000:]
+                        
+                        await callback.message.answer(f"📋 Últimos logs:\n```\n{last_lines}\n```")
+                        
+                except FileNotFoundError:
+                    await callback.message.answer("📋 Nenhum log encontrado")
+                except Exception as e:
+                    await callback.message.answer(f"❌ Erro ao ler logs: {e}")
             
             elif data.startswith("post_first_"):
                 product_id = data.replace("post_first_", "")
