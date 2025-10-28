@@ -111,10 +111,17 @@ async def main():
     if os.getenv('PORT'):
         logger.info("Detectado ambiente Render - configurando webhook")
         try:
+            # Aguardar bot estar pronto
+            await asyncio.sleep(2)
+            
             # Configurar webhook básico para evitar conflitos
             webhook_url = f"https://{os.getenv('RENDER_EXTERNAL_URL', 'localhost')}/webhook"
             await bot_manager.telegram_bot.bot.set_webhook(webhook_url)
             logger.info(f"Webhook configurado: {webhook_url}")
+            
+            # Parar polling e usar apenas webhook
+            bot_manager.telegram_bot.use_webhook = True
+            
         except Exception as e:
             logger.warning(f"Erro ao configurar webhook: {e}")
     
