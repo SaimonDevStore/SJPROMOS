@@ -16,7 +16,7 @@ services:
       - key: CHANNEL_ID
         value: @SJPROMOS
       - key: ADMIN_USER_ID
-        value: SEU_ID_DO_TELEGRAM
+        value: 5782277642
       - key: POST_MIN_PER_HOUR
         value: 20
       - key: POST_MAX_PER_HOUR
@@ -29,3 +29,4 @@ services:
         value: America/Sao_Paulo
       - key: DEBUG
         value: False
+
