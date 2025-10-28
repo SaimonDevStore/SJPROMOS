@@ -33,6 +33,7 @@ class TelegramBot:
         self.channel_id = config.CHANNEL_ID
         self.admin_id = config.ADMIN_USER_ID
         self.is_active = True
+        self.use_webhook = False
         
         # Inicializar componentes
         self.aliexpress_api = AliExpressAPI(
@@ -593,6 +594,11 @@ Use os comandos para alterar as configurações."""
         """Inicia o bot"""
         await self.product_ai.init_db()
         logger.info("Bot Telegram iniciado!")
+        
+        # Se usar webhook, não iniciar polling
+        if self.use_webhook:
+            logger.info("Modo webhook ativo - polling desabilitado")
+            return
         
         # Aguardar um pouco antes de limpar webhook
         await asyncio.sleep(2)
