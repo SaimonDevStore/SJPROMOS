@@ -119,23 +119,21 @@ Digite /help para ver ajuda detalhada.
                 # Obter estatísticas
                 stats = await self.product_ai.get_statistics()
                 
-                status_text = f"""
-🤖 **Status do Bot AliExpress**
+                status_text = f"""🤖 Status do Bot AliExpress
 
-✅ **Estado**: {'🟢 Ativo' if self.is_active else '🔴 Pausado'}
-📊 **Configurações**:
+✅ Estado: {'🟢 Ativo' if self.is_active else '🔴 Pausado'}
+📊 Configurações:
 • Posts/hora: {self.config.POST_MIN_PER_HOUR}-{self.config.POST_MAX_PER_HOUR}
 • Horário: {self.config.START_TIME} - {self.config.END_TIME}
 • Timezone: {self.config.TIMEZONE}
 • Canal: {self.config.CHANNEL_ID}
 
-📈 **Estatísticas**:
+📈 Estatísticas:
 • Total de posts: {stats.get('total_posts', 0)}
 • Total de cliques: {stats.get('total_clicks', 0)}
 • Score médio: {stats.get('avg_score', 0):.1f}
 
-🕐 **Última atualização**: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}
-                """
+🕐 Última atualização: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"""
                 
                 # Adicionar botões de controle rápido
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -150,7 +148,7 @@ Digite /help para ver ajuda detalhada.
                     ]
                 ])
                 
-                await message.answer(status_text, parse_mode='Markdown', reply_markup=keyboard)
+                await message.answer(status_text, reply_markup=keyboard)
                 
             except Exception as e:
                 logger.error(f"Erro no comando status: {e}")
@@ -508,15 +506,15 @@ Use os comandos para alterar as configurações.
             
             highlight_text = " | ".join(highlights) if highlights else "Promoção Especial"
             
-            # Formatação do post
-            post_text = f"""**{title}** | {highlight_text}
+            # Formatação do post (sem Markdown para evitar erros)
+            post_text = f"""{title} | {highlight_text}
 
-💵 De: R$ {original_price:.2f} ➜ **R$ {sale_price:.2f}**
+💵 De: R$ {original_price:.2f} ➜ R$ {sale_price:.2f}
 🎯 Desconto: {discount:.0f}% | Cashback Disponível
 🚚 Frete Grátis | Entrega Rápida
 ⭐ Avaliação: {rating} | {volume} vendas
 
-🔗 **Link com Desconto (Afiliado):**
+🔗 Link com Desconto (Afiliado):
 {product.get('affiliate_url', '')}
 
 🏪 Loja: {shop_title}
@@ -539,19 +537,17 @@ Use os comandos para alterar as configurações.
             post_text = await self.format_post(product)
             image_url = product.get('product_main_image_url', '')
             
-            # Postar com imagem se disponível
+            # Postar com imagem se disponível (sem Markdown)
             if image_url:
                 await self.bot.send_photo(
                     chat_id=self.channel_id,
                     photo=image_url,
-                    caption=post_text,
-                    parse_mode='Markdown'
+                    caption=post_text
                 )
             else:
                 await self.bot.send_message(
                     chat_id=self.channel_id,
-                    text=post_text,
-                    parse_mode='Markdown'
+                    text=post_text
                 )
             
             # Registrar postagem
@@ -568,10 +564,14 @@ Use os comandos para alterar as configurações.
         await self.product_ai.init_db()
         logger.info("Bot Telegram iniciado!")
         
+        # Aguardar um pouco antes de limpar webhook
+        await asyncio.sleep(2)
+        
         # Limpar updates pendentes para evitar conflitos
         try:
             await self.bot.delete_webhook(drop_pending_updates=True)
             logger.info("Webhook deletado - iniciando polling limpo")
+            await asyncio.sleep(1)
         except Exception as e:
             logger.warning(f"Erro ao deletar webhook: {e}")
         
@@ -579,14 +579,18 @@ Use os comandos para alterar as configurações.
         try:
             await self.bot.send_message(
                 self.admin_id,
-                "🤖 **Bot AliExpress iniciado!**\n\nDigite /status para ver o painel de controle.",
-                parse_mode='Markdown'
+                "🤖 Bot AliExpress iniciado!\n\nDigite /status para ver o painel de controle."
             )
         except Exception as e:
             logger.warning(f"Não foi possível enviar mensagem de inicialização: {e}")
         
-        # Iniciar polling
-        await self.dp.start_polling(self.bot, skip_updates=True)
+        # Iniciar polling com configurações mais robustas
+        await self.dp.start_polling(
+            self.bot, 
+            skip_updates=True,
+            timeout=60,
+            request_timeout=60
+        )
     
     async def stop(self):
         """Para o bot"""
