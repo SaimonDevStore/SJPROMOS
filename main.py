@@ -106,6 +106,18 @@ class BotManager:
 async def main():
     """Função principal"""
     bot_manager = BotManager()
+    
+    # Se estiver no Render (PORT definido), usar webhook
+    if os.getenv('PORT'):
+        logger.info("Detectado ambiente Render - configurando webhook")
+        try:
+            # Configurar webhook básico para evitar conflitos
+            webhook_url = f"https://{os.getenv('RENDER_EXTERNAL_URL', 'localhost')}/webhook"
+            await bot_manager.telegram_bot.bot.set_webhook(webhook_url)
+            logger.info(f"Webhook configurado: {webhook_url}")
+        except Exception as e:
+            logger.warning(f"Erro ao configurar webhook: {e}")
+    
     await bot_manager.start()
 
 if __name__ == "__main__":
