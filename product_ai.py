@@ -521,7 +521,7 @@ class ProductAI:
                 
                 # Produtos mais clicados
                 cursor = await db.execute('''
-                    SELECT product_title, clicks 
+                    SELECT product_id, clicks 
                     FROM posted_products 
                     ORDER BY clicks DESC 
                     LIMIT 5
