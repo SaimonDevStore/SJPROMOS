@@ -1,0 +1,31 @@
+services:
+  - type: worker
+    name: bot-aliExpress
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: TRACKING_ID
+        value: BOT_TELEGRAM
+      - key: APP_KEY
+        value: 521022
+      - key: APP_SECRET
+        value: Ve15nlPdIv5U7WRwAsWFHCqY2LRnsBes
+      - key: BOT_TOKEN
+        value: 8378547653:AAF6OxBv6x-UkeVR968u2nUmgwt23vyfmZw
+      - key: CHANNEL_ID
+        value: @SJPROMOS
+      - key: ADMIN_USER_ID
+        value: SEU_ID_DO_TELEGRAM
+      - key: POST_MIN_PER_HOUR
+        value: 20
+      - key: POST_MAX_PER_HOUR
+        value: 25
+      - key: START_TIME
+        value: 08:00
+      - key: END_TIME
+        value: 22:00
+      - key: TIMEZONE
+        value: America/Sao_Paulo
+      - key: DEBUG
+        value: False
