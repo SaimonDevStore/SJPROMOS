@@ -568,6 +568,13 @@ Use os comandos para alterar as configurações.
         await self.product_ai.init_db()
         logger.info("Bot Telegram iniciado!")
         
+        # Limpar updates pendentes para evitar conflitos
+        try:
+            await self.bot.delete_webhook(drop_pending_updates=True)
+            logger.info("Webhook deletado - iniciando polling limpo")
+        except Exception as e:
+            logger.warning(f"Erro ao deletar webhook: {e}")
+        
         # Enviar mensagem de inicialização para o admin
         try:
             await self.bot.send_message(
@@ -578,7 +585,8 @@ Use os comandos para alterar as configurações.
         except Exception as e:
             logger.warning(f"Não foi possível enviar mensagem de inicialização: {e}")
         
-        await self.dp.start_polling(self.bot)
+        # Iniciar polling
+        await self.dp.start_polling(self.bot, skip_updates=True)
     
     async def stop(self):
         """Para o bot"""
