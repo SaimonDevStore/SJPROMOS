@@ -4,7 +4,7 @@ services:
     env: python
     pythonVersion: 3.11
     buildCommand: pip install -r requirements.txt
-    startCommand: python main.py
+    startCommand: python webhook_server.py
     envVars:
       - key: TRACKING_ID
         value: BOT_TELEGRAM
